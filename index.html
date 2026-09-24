@@ -59,6 +59,32 @@
   .name { font-size: 1.15rem; font-weight: 800; color: #b5285c; line-height: 1.2; }
   .word { font-size: 0.78rem; font-style: italic; color: #8b6ad0; margin-top: 2px; }
   footer { text-align: center; margin-top: 36px; font-size: 0.8rem; color: #a98ba0; }
+
+  /* Cœur qui pulse au dos des cartes */
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.25); }
+  }
+  .card.flipped .heart { animation: pulse 1.2s ease-in-out infinite; }
+
+  /* Pluie de pétales en fond */
+  #petales {
+    position: fixed; inset: 0; overflow: hidden;
+    pointer-events: none; z-index: 0;
+  }
+  .petale {
+    position: absolute; top: -40px;
+    font-size: 20px; opacity: 0;
+    animation: chute linear infinite;
+  }
+  @keyframes chute {
+    0%   { transform: translateY(-40px) rotate(0deg);   opacity: 0; }
+    10%  { opacity: .9; }
+    90%  { opacity: .9; }
+    100% { transform: translateY(105vh) rotate(360deg);  opacity: 0; }
+  }
+  /* le contenu passe au-dessus des pétales */
+  header, .grid, footer { position: relative; z-index: 1; }
 </style>
 </head>
 <body>
@@ -67,6 +93,8 @@
     <p>Chaque fleur a été dessinée par une personne de l'équipe. Clique sur une fleur pour découvrir qui l'a offerte.</p>
     <button class="reset" id="toggleBtn" onclick="toggleAll()">↺ Tout retourner</button>
   </header>
+
+  <div id="petales"></div>
 
   <main class="grid" id="grid"></main>
 
@@ -146,6 +174,23 @@
 
   document.getElementById("footer").textContent =
     FLEURS.length + " fleurs offertes avec amour 💐";
+
+  // Pluie de pétales
+  (function pluieDePetales() {
+    const zone = document.getElementById("petales");
+    const petales = ["🌸", "🌺", "🌷", "💮", "❁"];
+    const N = 22;
+    for (let i = 0; i < N; i++) {
+      const el = document.createElement("span");
+      el.className = "petale";
+      el.textContent = petales[Math.floor(Math.random() * petales.length)];
+      el.style.left = Math.random() * 100 + "vw";
+      el.style.fontSize = (14 + Math.random() * 16) + "px";
+      el.style.animationDuration = (7 + Math.random() * 8) + "s";
+      el.style.animationDelay = (Math.random() * 10) + "s";
+      zone.appendChild(el);
+    }
+  })();
 
   function toggleAll() {
     const cards = document.querySelectorAll(".card");
