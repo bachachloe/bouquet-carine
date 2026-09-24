@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Un bouquet pour Carine 🌸</title>
+<style>
+  :root {
+    --rose: #d6336c;
+    --rose-clair: #f7a8b8;
+    --violet: #9e86f5;
+    --texte: #7a3b56;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    padding: 40px 16px 60px;
+    background: radial-gradient(circle at 20% 10%, #fff6fa 0%, #fdf2f8 40%, #f3f0ff 100%);
+    color: var(--texte);
+  }
+  header { text-align: center; max-width: 720px; margin: 0 auto 32px; }
+  h1 { font-size: 2.4rem; color: var(--rose); margin-bottom: 12px; }
+  header p { font-size: 0.95rem; color: #8a7080; line-height: 1.5; }
+  .reset {
+    margin-top: 18px; display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid #f5c2d5; background: rgba(255,255,255,.7); color: var(--rose);
+    padding: 8px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: background .2s;
+  }
+  .reset:hover { background: #fff; }
+  .grid {
+    max-width: 1000px; margin: 0 auto;
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+  .card { perspective: 1000px; cursor: pointer; background: none; border: none; padding: 0; }
+  .inner {
+    position: relative; width: 100%; height: 200px;
+    transition: transform .55s; transform-style: preserve-3d;
+  }
+  .card.flipped .inner { transform: rotateY(180deg); }
+  .face {
+    position: absolute; inset: 0; backface-visibility: hidden;
+    border-radius: 18px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 8px; padding: 14px;
+    box-shadow: 0 4px 14px rgba(214,51,108,.08);
+  }
+  .front { background: rgba(255,255,255,.85); border: 1px solid #fbd6e4; }
+  .front img { width: 110px; height: 110px; object-fit: contain; }
+  .front svg { width: 96px; height: 96px; }
+  .hint { font-size: 0.72rem; color: var(--rose-clair); font-weight: 600; }
+  .back {
+    transform: rotateY(180deg); text-align: center;
+    background: linear-gradient(160deg, #ffe3ee 0%, #f3e8ff 100%);
+    border: 1px solid #f0d4e8;
+  }
+  .heart { font-size: 1.4rem; }
+  .name { font-size: 1.15rem; font-weight: 800; color: #b5285c; line-height: 1.2; }
+  .word { font-size: 0.78rem; font-style: italic; color: #8b6ad0; margin-top: 2px; }
+  footer { text-align: center; margin-top: 36px; font-size: 0.8rem; color: #a98ba0; }
+</style>
+</head>
+<body>
+  <header>
+    <h1 id="title">Un bouquet pour Carine</h1>
+    <p>Chaque fleur a été dessinée par une personne de l'équipe. Clique sur une fleur pour découvrir qui l'a offerte.</p>
+    <button class="reset" id="toggleBtn" onclick="toggleAll()">↺ Tout retourner</button>
+  </header>
+
+  <main class="grid" id="grid"></main>
+
+  <footer id="footer"></footer>
+
+<script>
+  // ============================================================
+  //  À PERSONNALISER
+  // ============================================================
+  // Pour chaque fleur :
+  //   nom   : le prénom du collègue (affiché au dos)
+  //   mot   : (optionnel) un petit message
+  //   image : (optionnel) nom du fichier image, ex "fleur1.png"
+  //           place les images dans un dossier "images" à côté de ce fichier
+  //           -> "images/fleur1.png". Si vide, une fleur dessinée s'affiche.
+  const FLEURS = [
+    { nom: "Prénom 1",  mot: "Tu vas nous manquer !",  image: "" },
+    { nom: "Prénom 2",  mot: "Bonne route",            image: "" },
+    { nom: "Prénom 3",  mot: "Merci pour tout",         image: "" },
+    { nom: "Prénom 4",  mot: "Plein de bonheur",        image: "" },
+    { nom: "Prénom 5",  mot: "À très vite !",           image: "" },
+    { nom: "Prénom 6",  mot: "Prends soin de toi",      image: "" },
+    { nom: "Prénom 7",  mot: "Belle continuation",      image: "" },
+    { nom: "Prénom 8",  mot: "On pense à toi",          image: "" },
+    { nom: "Prénom 9",  mot: "Bravo pour la suite",     image: "" },
+    { nom: "Prénom 10", mot: "Gros bisous",             image: "" },
+    { nom: "Prénom 11", mot: "Que du bonheur",          image: "" },
+    { nom: "Prénom 12", mot: "Tu vas cartonner",        image: "" },
+    { nom: "Prénom 13", mot: "Reviens quand tu veux",   image: "" },
+    { nom: "Prénom 14", mot: "Toutes nos amitiés",      image: "" },
+    { nom: "Prénom 15", mot: "Bonne aventure !",        image: "" },
+  ];
+  // ============================================================
+
+  const PALETTES = [
+    ["#F7A8B8","#F17FA0","#F7C948"], ["#A78BFA","#7C6CE0","#F9D65C"],
+    ["#FCA5A5","#F26D6D","#FBBF24"], ["#93C5FD","#5B9BF0","#F7C948"],
+    ["#6EE7B7","#34C79A","#F9C74F"], ["#FDBA74","#F59E52","#EF7D57"],
+    ["#F9A8D4","#EC72B6","#F4D35E"], ["#C4B5FD","#9E86F5","#F6C445"],
+  ];
+
+  function fleurSVG(i) {
+    const [p1, p2, c] = PALETTES[i % PALETTES.length];
+    const petals = (i % 3 === 0) ? 6 : (i % 3 === 1) ? 8 : 5;
+    let e = "";
+    for (let k = 0; k < petals; k++) {
+      const col = k % 2 === 0 ? p1 : p2;
+      e += `<ellipse rx="7" ry="23" cx="0" cy="-24" fill="${col}" transform="rotate(${(360/petals)*k})"/>`;
+    }
+    return `<svg viewBox="0 0 100 100"><g transform="translate(50 50)">${e}
+      <circle r="12" fill="${c}"/>
+      <circle r="12" fill="none" stroke="#fff" stroke-opacity="0.5" stroke-width="2"/></g></svg>`;
+  }
+
+  const grid = document.getElementById("grid");
+  FLEURS.forEach((f, i) => {
+    const card = document.createElement("button");
+    card.className = "card";
+    card.onclick = () => card.classList.toggle("flipped");
+    const visuel = f.image
+      ? `<img src="images/${f.image}" alt="Fleur de ${f.nom}" />`
+      : fleurSVG(i);
+    card.innerHTML = `
+      <div class="inner">
+        <div class="face front">
+          ${visuel}
+          <span class="hint">Clique pour découvrir</span>
+        </div>
+        <div class="face back">
+          <span class="heart">💗</span>
+          <span class="name">${f.nom}</span>
+          ${f.mot ? `<span class="word">« ${f.mot} »</span>` : ""}
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  document.getElementById("footer").textContent =
+    FLEURS.length + " fleurs offertes avec amour 💐";
+
+  function toggleAll() {
+    const cards = document.querySelectorAll(".card");
+    // Si au moins une fleur est fermée, on ouvre tout ; sinon on referme tout.
+    const someClosed = [...cards].some(c => !c.classList.contains("flipped"));
+    cards.forEach(c => c.classList.toggle("flipped", someClosed));
+    document.getElementById("toggleBtn").textContent =
+      someClosed ? "↺ Tout refermer" : "↺ Tout retourner";
+  }
+</script>
+</body>
+</html>
